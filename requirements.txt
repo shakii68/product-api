@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+python-multipart
+python-jose[cryptography]
+pwdlib[argon2]
+psutil
+pytest
+httpx
+pytest-asyncio
+pytest-benchmark
+ruff
+black
