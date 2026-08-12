@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def auth_headers(client, test_user):
     client.post("/register", json=test_user)
@@ -10,6 +11,7 @@ def auth_headers(client, test_user):
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
+
 def product_data():
     return {
         "name": "Test Product",
@@ -18,6 +20,7 @@ def product_data():
         "stock": 10,
     }
 
+
 def test_create_product(client, auth_headers):
     response = client.post("/products", json=product_data(), headers=auth_headers)
     assert response.status_code == 201
@@ -25,11 +28,13 @@ def test_create_product(client, auth_headers):
     assert data["name"] == "Test Product"
     assert data["price"] == 99.99
 
+
 def test_list_products(client, auth_headers):
     client.post("/products", json=product_data(), headers=auth_headers)
     response = client.get("/products", headers=auth_headers)
     assert response.status_code == 200
     assert len(response.json()) >= 1
+
 
 def test_get_product(client, auth_headers):
     create = client.post("/products", json=product_data(), headers=auth_headers)
@@ -38,9 +43,11 @@ def test_get_product(client, auth_headers):
     assert response.status_code == 200
     assert response.json()["name"] == "Test Product"
 
+
 def test_get_product_not_found(client, auth_headers):
     response = client.get("/products/99999", headers=auth_headers)
     assert response.status_code == 404
+
 
 def test_update_product(client, auth_headers):
     create = client.post("/products", json=product_data(), headers=auth_headers)
@@ -52,6 +59,7 @@ def test_update_product(client, auth_headers):
     )
     assert response.status_code == 200
     assert response.json()["name"] == "Updated Product"
+
 
 def test_delete_product(client, auth_headers):
     create = client.post("/products", json=product_data(), headers=auth_headers)

@@ -1,17 +1,18 @@
+import logging
 import os
 import time
-import logging
 from datetime import datetime, timedelta, timezone
 from logging.handlers import RotatingFileHandler
-from fastapi import FastAPI, Depends, HTTPException, status, Request
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from jose import jwt, JWTError
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
 from pwdlib import PasswordHash
-from sqlmodel import SQLModel, Field, Session, create_engine, select
 from pydantic import BaseModel, ConfigDict, field_validator
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-for-development")
@@ -29,8 +30,10 @@ LOG_FILE = os.getenv("LOG_FILE", "app.log")
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[RotatingFileHandler(LOG_FILE, maxBytes=10_485_760, backupCount=5),
-              logging.StreamHandler()],
+    handlers=[
+        RotatingFileHandler(LOG_FILE, maxBytes=10_485_760, backupCount=5),
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -153,6 +156,7 @@ def get_current_admin(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
+
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     return JSONResponse(
@@ -167,11 +171,13 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     details = []
 
     for error in exc.errors():
-        details.append({
-            "field": ".".join(str(x) for x in error["loc"]),
-            "message": error["msg"],
-            "type": error["type"],
-        })
+        details.append(
+            {
+                "field": ".".join(str(x) for x in error["loc"]),
+                "message": error["msg"],
+                "type": error["type"],
+            }
+        )
 
     return JSONResponse(
         status_code=422,
@@ -181,6 +187,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "details": details,
         },
     )
+
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -306,7 +313,6 @@ def delete_product(
         raise HTTPException(status_code=404, detail="Product not found")
     session.delete(product)
     session.commit()
-    return None
 
 
 @app.get("/health")
@@ -322,6 +328,7 @@ def health_check():
 @app.get("/metrics")
 def metrics(_: User = Depends(get_current_admin)):
     import psutil
+
     return {
         "cpu_percent": psutil.cpu_percent(),
         "memory_percent": psutil.virtual_memory().percent,

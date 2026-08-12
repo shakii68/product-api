@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def auth_headers(client, test_user):
     client.post("/register", json=test_user)
@@ -8,6 +9,7 @@ def auth_headers(client, test_user):
         data={"username": test_user["username"], "password": test_user["password"]},
     )
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
+
 
 @pytest.mark.benchmark
 def test_create_product_performance(client, auth_headers, benchmark):

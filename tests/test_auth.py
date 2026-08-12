@@ -6,6 +6,7 @@ def test_register_user(client, test_user):
     assert data["email"] == test_user["email"]
     assert "password" not in data
 
+
 def test_register_duplicate_user(client, test_user):
     client.post("/register", json=test_user)
     duplicate = test_user.copy()
@@ -13,6 +14,7 @@ def test_register_duplicate_user(client, test_user):
     response = client.post("/register", json=duplicate)
     assert response.status_code == 409
     assert "username already exists" in response.text.lower()
+
 
 def test_login_user(client, test_user):
     client.post("/register", json=test_user)
@@ -24,6 +26,7 @@ def test_login_user(client, test_user):
     data = response.json()
     assert "access_token" in data
     assert data["token_type"] == "bearer"
+
 
 def test_login_invalid_credentials(client, test_user):
     client.post("/register", json=test_user)

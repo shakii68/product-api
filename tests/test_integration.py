@@ -18,8 +18,12 @@ def test_full_crud_flow(client):
 
     create = client.post(
         "/products",
-        json={"name": "Integration Product", "description": "Full flow",
-              "price": 50, "stock": 5},
+        json={
+            "name": "Integration Product",
+            "description": "Full flow",
+            "price": 50,
+            "stock": 5,
+        },
         headers=headers,
     )
     assert create.status_code == 201

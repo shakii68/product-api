@@ -1,5 +1,6 @@
-from locust import HttpUser, task, between
 import uuid
+
+from locust import HttpUser, between, task
 
 
 class ProductUser(HttpUser):
@@ -14,16 +15,12 @@ class ProductUser(HttpUser):
                 "username": username,
                 "email": f"{username}@example.com",
                 "password": "testpass123",
-                "full_name": "Locust User"
-            }
+                "full_name": "Locust User",
+            },
         )
 
         response = self.client.post(
-            "/login",
-            data={
-                "username": username,
-                "password": "testpass123"
-            }
+            "/login", data={"username": username, "password": "testpass123"}
         )
 
         if response.status_code == 200:
@@ -35,7 +32,4 @@ class ProductUser(HttpUser):
 
     @task
     def get_products(self):
-        self.client.get(
-            "/products",
-            headers=self.headers
-        )
+        self.client.get("/products", headers=self.headers)
